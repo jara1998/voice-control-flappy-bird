@@ -1,0 +1,44 @@
+module drawTV (clkf, reset, x, y, llx, trx, lly, try);
+	input logic clkf, reset;
+	output logic [10:0] x, y;
+	input logic [10:0] llx, lly, trx, try;
+
+	always_ff @(posedge clkf) begin
+		if (~reset) begin
+			x <= llx;
+			y <= lly;
+		end
+		else if (y < try)
+			y <= y + 1;
+		else if (x < trx) begin
+			y <= lly;
+			x <= x + 1;
+		end
+		else begin
+			x <= llx;
+			y <= lly;
+		end
+	end
+endmodule
+			
+module cs_testbench();
+   logic clkf, reset;
+	logic [10:0] x, y;
+
+	clearScreen dut (clkf, reset, x, y);
+	
+	parameter PERIOD = 100;
+	initial begin
+		clkf <= 0;
+		forever #(PERIOD/2)
+			clkf <= ~clkf;
+   end
+	
+	
+	initial begin
+		reset <= 1; @(posedge clkf)
+      @(posedge clkf)
+		repeat (1000000) @(posedge clkf);
+		$stop;
+	end
+endmodule

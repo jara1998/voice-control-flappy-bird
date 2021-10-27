@@ -1,0 +1,41 @@
+module move (clk, clks, clkf, KEY, x, y);
+
+input logic in4, in3;
+logic [9:0] ctr;
+enum {s_idle,s1,s2,s3,s4} ps, ns;
+
+
+always_comb begin: state_table
+	case(ps)
+		s_idle: if(in4) ns = s1;
+			else if(in3) ns = s3;
+			else ns = s_idle;
+		s1: if(ctr == 30) ns = s2;
+			else ns = s1;
+		s2: if(ctr == 60) ns = s_idle;
+			else ns = s2;
+		s3: if(ctr == 30) ns = s4;
+			else ns = s3;
+		s4: if(ctr == 60) ns = s_idle;
+			else ns = s4;
+
+
+end
+
+
+always_ff @(posedge clk) begin
+	if (ps == s1 ) x <= x + 5;
+	else if(ps == s2)	x<= x - 5;
+	else if(ps == s3) x <= x + 7;
+   else if( ps == s4) x <= x - 7;
+	else x <= x;
+end
+
+always_ff @(posedge clk) begin
+	if(ctr  == 10'd1000) ctr <= 10'd0;
+	else if (ps == s1 || ps = s3 || ps == s2 || ps == s4) ctr <= ctr + 1;
+	else if (ps == s_idle) ctr <= 10'd0;
+	else ctr <= ctr;
+end
+
+endmodule

@@ -1,0 +1,53 @@
+module average (reset,dataIn,dataOut,clk);
+
+input logic reset;
+input logic [23:0]dataIn;
+input logic clk;
+output logic [23:0]dataOut;
+logic [23:0] dataStrt, dataMiddle,dataEnd;
+logic [2:0] ctr,ctrnext;
+	assign dataStrt = dataIn / 8;
+	always_ff  @(posedge clk) begin :counter
+		if(reset) ctr <= 3'd0;
+		else if (ctr == 3'd7) ctr <= 3'd7;
+		else ctr <= ctr + 1;
+	end
+	
+	always_ff @(posedge clk) begin:
+		if (reset) dataMiddle <= dataStrt;
+		else if (ctr < 3'd7)dataMiddle <= dataMiddle / 8;
+		else dataMiddle <= dataMiddle;
+		
+		if(ctr < 3'd7)dataStrt <= dataStrt + dataMiddle;
+		else dataStrt = dataStrt;
+		
+	end
+	
+	always_comb begin
+		if (ctr == 3'd7) dataEnd = dataStrt;
+		else dataEnd = 24'bx;
+	end
+	
+	assign dataOut = dataEnd;
+	
+	endmodule
+	
+	
+module average_testbench();
+	logic  reset, clk;
+	logic [23:0] dataIn, dataOut;
+
+	average dut(reset,dataIn,dataOut,clk);
+	parameter CLOCK_PERIOD=100; 
+
+	initial begin   
+		clk <= 0;
+		forever #(CLOCK_PERIOD/2) clk <= ~clk;    
+	end
+	initial begin
+		reset <= 1 ; dataIn <= 24'd27650; @(posedge clk);
+		reset <= 0;  @(posedge clk);
+		repeat(20) @(posedge clk);
+	$stop;
+	end
+	endmodule

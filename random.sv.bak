@@ -1,0 +1,10 @@
+module random (clock, n);
+ input logic clock;
+ output logic [9:0] n;
+ //logic [9:0] n;
+ 
+ always_ff begin
+  n <= $urandom_range(20,30);
+ end
+ 
+ endmodule 

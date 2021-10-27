@@ -1,0 +1,10 @@
+module solve_meta (clock,in, out);
+	input logic clock,in;
+	output logic out;
+	logic dff1;
+	always_ff begin
+	dff1 <= in;
+	out <= dff1;
+	end
+	
+endmodule 
